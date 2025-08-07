@@ -1,0 +1,2 @@
+# Elegidas
+EmpowerHER AI Hackathon
