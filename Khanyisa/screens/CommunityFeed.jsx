@@ -27,7 +27,8 @@ import {
   CheckCircle as Verified,
   X,
   Send,
-
+  Bookmark,
+  Share,
   Plus,
   Flag
 } from 'react-native-feather';
