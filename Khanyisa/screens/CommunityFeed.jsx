@@ -11,11 +11,9 @@ import {
   Dimensions,
   PanResponder,
   Platform,
-<<<<<<< Updated upstream
   Alert,
-=======
   Image,
->>>>>>> Stashed changes
+
 } from 'react-native';
 
 import { 
@@ -145,7 +143,7 @@ const CommunityFeed = () => {
   const currentVideo = videos[currentVideoIndex];
 
   const handleLike = () => {
-<<<<<<< Updated upstream
+
     const videoId = currentVideo.id;
     if (likedVideos.has(videoId)) {
       setLikedVideos(prev => {
@@ -184,9 +182,7 @@ const CommunityFeed = () => {
         { text: "Share", onPress: () => Alert.alert("✅", "Video shared with your safety contacts!") }
       ]
     );
-=======
-    console.log(`Liked video ${currentVideo.id}`);
->>>>>>> Stashed changes
+
   };
 
   const handleCommentSubmit = () => {
@@ -518,9 +514,7 @@ const CommunityFeed = () => {
         </View>
       </Modal>
 
-<<<<<<< Updated upstream
-     
-=======
+
       {/* Upload Modal */}
       <Modal
         visible={showUpload}
@@ -611,7 +605,6 @@ const CommunityFeed = () => {
           </View>
         </View>
       </Modal>
->>>>>>> Stashed changes
     </SafeAreaView>
   );
 };
