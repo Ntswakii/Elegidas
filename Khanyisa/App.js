@@ -137,6 +137,7 @@ export default function App() {
             name="Settings" 
             component={SettingsScreen}
             options={{ title: 'Settings' }}
+            // test
           />
         </Tab.Navigator>
       </NavigationContainer>
