@@ -30,10 +30,57 @@ const HomeStack = () => {
             headerStyle: {
               backgroundColor: 'black',
             },
+<<<<<<< HEAD
             headerTintColor: 'white',
           }}
         />
       </Stack.Navigator>
     </NavigationContainer>
+=======
+            tabBarActiveTintColor: '#9333ea',
+            tabBarInactiveTintColor: '#9ca3af',
+            tabBarStyle: {
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderTopColor: '#e9d5ff',
+              paddingBottom: 10,
+              height: 80,
+            },
+            tabBarLabelStyle: {
+              fontSize: 12,
+              fontWeight: '500',
+            },
+          })}
+        >
+          <Tab.Screen 
+            name="Home" 
+            component={HomeStack}
+            options={{ headerShown: false }}
+          />
+          <Tab.Screen 
+            name="Feed" 
+            component={CommunityFeed}
+            options={{ 
+              title: 'Community Feed',
+              headerStyle: {
+                backgroundColor: 'black',
+              },
+              headerTintColor: 'white',
+            }}
+          />
+          <Tab.Screen 
+            name="Community" 
+            component={CommunityWatchHub}
+            options={{ title: 'Community' }}
+          />
+          <Tab.Screen 
+            name="Settings" 
+            component={SettingsScreen}
+            options={{ title: 'Settings' }}
+            // testing 
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </View>
+>>>>>>> c08132a46490ddf25cc0aaae74faf128a112b820
   );
 }
