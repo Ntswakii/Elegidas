@@ -1,3 +1,4 @@
+// i used this to test first we can get the functionalities from here 
 import React from 'react';
 import {
   View,
