@@ -32,6 +32,7 @@ import {
 } from 'react-native-feather';
 import { useNavigation } from '@react-navigation/native';
 
+
 const SafetyAppHome = () => {
   const navigation = useNavigation();
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -303,34 +304,7 @@ const SafetyAppHome = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
-      <View style={[
-        styles.bottomNav,
-        isDarkMode ? styles.darkBottomNav : styles.lightBottomNav,
-        getBorderColor()
-      ]}>
-        <View style={styles.navContainer}>
-          <TouchableOpacity style={styles.navButton}>
-            <Shield width={20} height={20} color="#9333ea" />
-            <Text style={styles.activeNavLabel}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.navButton}
-            onPress={() => navigation.navigate('CommunityFeed')}
-          >
-            <Users width={20} height={20} color="#9ca3af" />
-            <Text style={styles.inactiveNavLabel}>Feed</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton}>
-            <Users width={20} height={20} color="#9ca3af" />
-            <Text style={styles.inactiveNavLabel}>Community</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton}>
-            <Settings width={20} height={20} color="#9ca3af" />
-            <Text style={styles.inactiveNavLabel}>Settings</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      
     </SafeAreaView>
   );
 };
@@ -471,19 +445,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 16,
+    gap: 12,
     marginBottom: 24,
   },
   featureCard: {
     width: '48%',
     borderRadius: 20,
     borderWidth: 1,
-    padding: 24,
+    padding: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
   },
   urgentFeature: {
     borderColor: '#fecaca',
@@ -509,15 +483,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   urgentBadge: {
-    backgroundColor: '#fee2e2',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
+    backgroundColor: '#fecaca',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    marginTop: 2,
   },
   urgentBadgeText: {
     color: '#dc2626',
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   quickActionsCard: {
     borderRadius: 20,
@@ -592,42 +569,6 @@ const styles = StyleSheet.create({
   },
   safetyTipDescription: {
     fontSize: 12,
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: 1,
-    paddingBottom: Platform.OS === 'ios' ? 16 : 8,
-  },
-  lightBottomNav: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-  },
-  darkBottomNav: {
-    backgroundColor: 'rgba(31, 41, 55, 0.9)',
-  },
-  navContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    maxWidth: 480,
-    width: '100%',
-    marginHorizontal: 'auto',
-  },
-  navButton: {
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  activeNavLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#9333ea',
-  },
-  inactiveNavLabel: {
-    fontSize: 12,
-    color: '#9ca3af',
   },
 });
 

@@ -11,6 +11,7 @@ import {
   Dimensions,
   PanResponder,
   Platform,
+  Alert,
 } from 'react-native';
 
 import { 
@@ -23,20 +24,14 @@ import {
   User,
   CheckCircle as Verified,
   X,
-  Send
+  Send,
+  Share,
+  Bookmark
 } from 'react-native-feather';
 
-import { Video } from 'expo-av';
+
 
 const { width, height } = Dimensions.get('window');
-
-const videoURIs = [
-  require('../assets/videos/video1.mp4'),
-  require('../assets/videos/video2.mp4'),
-  require('../assets/videos/video3.mp4'),
-  require('../assets/videos/video4.mp4'),
-  require('../assets/videos/video5.mp4')
-];
 
 const CommunityFeed = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
@@ -45,6 +40,9 @@ const CommunityFeed = () => {
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState({});
+  const [likedVideos, setLikedVideos] = useState(new Set());
+  const [savedVideos, setSavedVideos] = useState(new Set());
+  const [isDarkMode, setIsDarkMode] = useState(true); // Feed is typically dark
   const videoRef = useRef(null);
 
 const panResponder = useRef(
@@ -68,7 +66,6 @@ const panResponder = useRef(
   })
 ).current;
 
-
   const videos = [
     {
       id: 1,
@@ -80,7 +77,7 @@ const panResponder = useRef(
       comments: 847,
       description: "Learn to recognize financial abuse patterns and discover practical steps to regain your financial independence.",
       tags: ["#FinancialAbuse", "#WomenSafety", "#Empowerment"],
-      videoUri: videoURIs[0]
+      videoPlaceholder: "🎥 Financial Safety Tips Video"
     },
     {
       id: 2,
@@ -92,7 +89,7 @@ const panResponder = useRef(
       comments: 1243,
       description: "How I turned my pain into purpose and built a million-dollar business.",
       tags: ["#SurvivorToCEO", "#WomenInBusiness"],
-      videoUri: videoURIs[1]
+      videoPlaceholder: "🎥 Success Story Video"
     },
     {
       id: 3,
@@ -104,7 +101,7 @@ const panResponder = useRef(
       comments: 2109,
       description: "Quick and effective self-defense moves that could save your life.",
       tags: ["#SelfDefense", "#WomenSafety"],
-      videoUri: videoURIs[2]
+      videoPlaceholder: "🎥 Self-Defense Tutorial"
     },
     {
       id: 4,
@@ -116,7 +113,7 @@ const panResponder = useRef(
       comments: 1567,
       description: "Practical tips for rebuilding self-confidence after trauma.",
       tags: ["#TraumaRecovery", "#Confidence"],
-      videoUri: videoURIs[3]
+      videoPlaceholder: "🎥 Mental Health Support"
     },
     {
       id: 5,
@@ -128,22 +125,58 @@ const panResponder = useRef(
       comments: 789,
       description: "How I launched my business with just $100 and grew it to 6 figures.",
       tags: ["#SmallBusiness", "#Entrepreneurship"],
-      videoUri: videoURIs[4]
+      videoPlaceholder: "🎥 Business Tutorial"
     }
   ];
 
   const currentVideo = videos[currentVideoIndex];
 
   const handleLike = () => {
-    // In a real app, you would update this in your backend
-    console.log(`Liked video ${currentVideo.id}`);
+    const videoId = currentVideo.id;
+    if (likedVideos.has(videoId)) {
+      setLikedVideos(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(videoId);
+        return newSet;
+      });
+    } else {
+      setLikedVideos(prev => new Set(prev).add(videoId));
+      // Show a brief confirmation
+      Alert.alert("💜", "Video liked! Supporting our community creators.", [{ text: "OK" }]);
+    }
+  };
+
+  const handleSave = () => {
+    const videoId = currentVideo.id;
+    if (savedVideos.has(videoId)) {
+      setSavedVideos(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(videoId);
+        return newSet;
+      });
+      Alert.alert("📱", "Video removed from saved", [{ text: "OK" }]);
+    } else {
+      setSavedVideos(prev => new Set(prev).add(videoId));
+      Alert.alert("📱", "Video saved for later!", [{ text: "OK" }]);
+    }
+  };
+
+  const handleShare = () => {
+    Alert.alert(
+      "Share Video", 
+      `Share "${currentVideo.title}" with your safety network?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Share", onPress: () => Alert.alert("✅", "Video shared with your safety contacts!") }
+      ]
+    );
   };
 
   const handleCommentSubmit = () => {
     if (comment.trim()) {
       const newComment = {
         id: Date.now(),
-        author: "You", // In a real app, this would be the logged in user
+        author: "You",
         text: comment,
         time: "Just now"
       };
@@ -154,6 +187,7 @@ const panResponder = useRef(
       }));
       
       setComment('');
+      Alert.alert("💬", "Your supportive comment has been added!", [{ text: "OK" }]);
     }
   };
 
@@ -171,15 +205,15 @@ const panResponder = useRef(
         style={styles.videoContainer}
         {...panResponder.panHandlers}
       >
-        <Video
-            source={currentVideo.videoUri}
-            style={styles.video}
-            resizeMode="cover"
-            isLooping
-            shouldPlay={isPlaying}
-            isMuted={isMuted}
-            useNativeControls={false}
-        />
+        {/* Video Placeholder */}
+        <View style={styles.videoPlaceholder}>
+          <Text style={styles.videoPlaceholderText}>
+            {currentVideo.videoPlaceholder}
+          </Text>
+          <Text style={styles.videoPlaceholderSubtext}>
+            Swipe up/down to navigate • Tap to play/pause
+          </Text>
+        </View>
         
         <View style={styles.videoOverlay}>
           <TouchableOpacity
@@ -193,6 +227,18 @@ const panResponder = useRef(
             )}
           </TouchableOpacity>
         </View>
+
+        {/* Mute Button */}
+        <TouchableOpacity
+          onPress={() => setIsMuted(!isMuted)}
+          style={styles.muteButton}
+        >
+          {isMuted ? (
+            <VolumeX stroke="white" width={20} height={20} />
+          ) : (
+            <Volume2 stroke="white" width={20} height={20} />
+          )}
+        </TouchableOpacity>
 
         {/* Video Info Overlay */}
         <View style={styles.videoInfoOverlay}>
@@ -233,9 +279,17 @@ const panResponder = useRef(
           <View style={styles.actionItem}>
             <TouchableOpacity
               onPress={handleLike}
-              style={styles.actionButton}
+              style={[
+                styles.actionButton,
+                likedVideos.has(currentVideo.id) && styles.actionButtonLiked
+              ]}
             >
-              <Heart stroke="white" width={24} height={24} />
+              <Heart 
+                stroke={likedVideos.has(currentVideo.id) ? "#ec4899" : "white"} 
+                fill={likedVideos.has(currentVideo.id) ? "#ec4899" : "transparent"}
+                width={24} 
+                height={24} 
+              />
             </TouchableOpacity>
             <Text style={styles.actionCount}>{formatNumber(currentVideo.likes)}</Text>
           </View>
@@ -249,6 +303,41 @@ const panResponder = useRef(
             </TouchableOpacity>
             <Text style={styles.actionCount}>{currentVideo.comments}</Text>
           </View>
+
+          <View style={styles.actionItem}>
+            <TouchableOpacity
+              onPress={handleSave}
+              style={[
+                styles.actionButton,
+                savedVideos.has(currentVideo.id) && styles.actionButtonSaved
+              ]}
+            >
+              <Bookmark 
+                stroke={savedVideos.has(currentVideo.id) ? "#fbbf24" : "white"} 
+                fill={savedVideos.has(currentVideo.id) ? "#fbbf24" : "transparent"}
+                width={24} 
+                height={24} 
+              />
+            </TouchableOpacity>
+            <Text style={styles.actionCount}>Save</Text>
+          </View>
+
+          <View style={styles.actionItem}>
+            <TouchableOpacity
+              onPress={handleShare}
+              style={styles.actionButton}
+            >
+              <Share stroke="white" width={24} height={24} />
+            </TouchableOpacity>
+            <Text style={styles.actionCount}>Share</Text>
+          </View>
+        </View>
+
+        {/* Video Navigation Indicator */}
+        <View style={styles.videoIndicator}>
+          <Text style={styles.videoIndicatorText}>
+            {currentVideoIndex + 1} / {videos.length}
+          </Text>
         </View>
       </View>
 
@@ -285,6 +374,19 @@ const panResponder = useRef(
                   <Text style={styles.commentText}>This is so helpful! Thank you for sharing your story 💜</Text>
                 </View>
               </View>
+
+              <View style={styles.commentItem}>
+                <View style={styles.commentAvatar}>
+                  <User stroke="white" width={16} height={16} />
+                </View>
+                <View style={styles.commentContent}>
+                  <View style={styles.commentHeader}>
+                    <Text style={styles.commentAuthor}>@safe_sister</Text>
+                    <Text style={styles.commentTime}>1h ago</Text>
+                  </View>
+                  <Text style={styles.commentText}>You're so strong! This gives me hope 🌟</Text>
+                </View>
+              </View>
               
               {/* User-submitted comments */}
               {(comments[currentVideo.id] || []).map(comment => (
@@ -315,6 +417,7 @@ const panResponder = useRef(
                 <TouchableOpacity 
                   onPress={handleCommentSubmit}
                   style={styles.sendButton}
+                  disabled={!comment.trim()}
                 >
                   <Send stroke="white" width={16} height={16} />
                 </TouchableOpacity>
@@ -323,6 +426,8 @@ const panResponder = useRef(
           </View>
         </View>
       </Modal>
+
+     
     </SafeAreaView>
   );
 };
@@ -336,9 +441,25 @@ const styles = StyleSheet.create({
     flex: 1,
     position: 'relative',
   },
-  video: {
+  videoPlaceholder: {
     width: '100%',
     height: '100%',
+    backgroundColor: '#1f2937',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  videoPlaceholderText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  videoPlaceholderSubtext: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    textAlign: 'center',
   },
   videoOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -353,13 +474,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  muteButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 8,
+    borderRadius: 20,
+  },
   videoInfoOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     paddingTop: 48,
-    paddingBottom: 80,
+    paddingBottom: 100,
     backgroundColor: 'rgba(0,0,0,0.7)',
   },
   videoInfoContent: {
@@ -422,8 +551,8 @@ const styles = StyleSheet.create({
   sideActions: {
     position: 'absolute',
     right: 16,
-    bottom: 160,
-    gap: 24,
+    bottom: 180,
+    gap: 20,
   },
   actionItem: {
     alignItems: 'center',
@@ -433,10 +562,29 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 12,
   },
+  actionButtonLiked: {
+    backgroundColor: 'rgba(236, 72, 153, 0.3)',
+  },
+  actionButtonSaved: {
+    backgroundColor: 'rgba(251, 191, 36, 0.3)',
+  },
   actionCount: {
     color: 'white',
     fontSize: 12,
     marginTop: 4,
+  },
+  videoIndicator: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  videoIndicatorText: {
+    color: 'white',
+    fontSize: 12,
   },
   modalOverlay: {
     flex: 1,
