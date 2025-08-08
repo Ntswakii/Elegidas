@@ -12,7 +12,7 @@ import {
   PanResponder,
   Platform,
   Animated,
-  Easing
+  Easing,
 } from 'react-native';
 import Video from 'react-native-video';
 import { 
@@ -105,7 +105,8 @@ const SafetyAppHome = () => {
       subtitle: 'Chat & resources',
       icon: Heart,
       color: ['#fce7f3', '#ffe4e6', '#fce7f3'],
-      iconColor: '#ec4899'
+      iconColor: '#ec4899',
+      screen: 'EmotionalSupportHub'
     }
   ];
 
@@ -157,12 +158,12 @@ const SafetyAppHome = () => {
             </View>
           </View>
           <View style={styles.headerIcons}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => setIsDarkMode(!isDarkMode)}
               style={[styles.themeToggle, isDarkMode ? styles.darkToggle : styles.lightToggle]}
             >
               {isDarkMode ? <Sun width={16} height={16} color="#d1d5db" /> : <Moon width={16} height={16} color="#9333ea" />}
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <Bell width={20} height={20} color={isDarkMode ? '#9ca3af' : '#4b5563'} />
             <User width={20} height={20} color={isDarkMode ? '#9ca3af' : '#4b5563'} />
           </View>
@@ -445,7 +446,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: 12,
+
+    gap: 10,
+
     marginBottom: 24,
   },
   featureCard: {

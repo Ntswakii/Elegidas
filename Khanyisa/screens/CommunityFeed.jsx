@@ -11,7 +11,11 @@ import {
   Dimensions,
   PanResponder,
   Platform,
+<<<<<<< Updated upstream
   Alert,
+=======
+  Image,
+>>>>>>> Stashed changes
 } from 'react-native';
 
 import { 
@@ -25,10 +29,13 @@ import {
   CheckCircle as Verified,
   X,
   Send,
-  Share,
-  Bookmark
+
+  Plus,
+  Flag
 } from 'react-native-feather';
 
+import { Video } from 'expo-av';
+import * as ImagePicker from 'expo-image-picker';
 
 
 const { width, height } = Dimensions.get('window');
@@ -38,33 +45,39 @@ const CommunityFeed = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState({});
   const [likedVideos, setLikedVideos] = useState(new Set());
   const [savedVideos, setSavedVideos] = useState(new Set());
   const [isDarkMode, setIsDarkMode] = useState(true); // Feed is typically dark
   const videoRef = useRef(null);
+  const [image, setImage] = useState(null);
+  const [caption, setCaption] = useState('');
+  const [pendingVideo, setPendingVideo] = useState(null);
+  const [showCaptionModal, setShowCaptionModal] = useState(false);
+  const [posts, setPosts] = useState([]);
 
-const panResponder = useRef(
-  PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gestureState) => {
-      return Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dy < -50) {
-        if (currentVideoIndex < videos.length - 1) {
-          setCurrentVideoIndex(prev => prev + 1);
-          setIsPlaying(true);
-        }
-      } else if (gestureState.dy > 50) {
-        if (currentVideoIndex > 0) {
-          setCurrentVideoIndex(prev => prev - 1);
-          setIsPlaying(true);
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy < -50) {
+          if (currentVideoIndex < videos.length - 1) {
+            setCurrentVideoIndex(prev => prev + 1);
+            setIsPlaying(true);
+          }
+        } else if (gestureState.dy > 50) {
+          if (currentVideoIndex > 0) {
+            setCurrentVideoIndex(prev => prev - 1);
+            setIsPlaying(true);
+          }
         }
       }
-    }
-  })
-).current;
+    })
+  ).current;
 
   const videos = [
     {
@@ -132,6 +145,7 @@ const panResponder = useRef(
   const currentVideo = videos[currentVideoIndex];
 
   const handleLike = () => {
+<<<<<<< Updated upstream
     const videoId = currentVideo.id;
     if (likedVideos.has(videoId)) {
       setLikedVideos(prev => {
@@ -170,6 +184,9 @@ const panResponder = useRef(
         { text: "Share", onPress: () => Alert.alert("✅", "Video shared with your safety contacts!") }
       ]
     );
+=======
+    console.log(`Liked video ${currentVideo.id}`);
+>>>>>>> Stashed changes
   };
 
   const handleCommentSubmit = () => {
@@ -190,6 +207,72 @@ const panResponder = useRef(
       Alert.alert("💬", "Your supportive comment has been added!", [{ text: "OK" }]);
     }
   };
+
+  const requestCameraPermission = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Camera permission is required!');
+      return false;
+    }
+    return true;
+  };
+
+  const requestGalleryPermission = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Gallery permission is required!');
+      return false;
+    }
+    return true;
+  };
+
+  const handleRecordVideo = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      quality: 1,
+      videoMaxDuration: 60,
+    });
+
+    if (!result.canceled) {
+      setPendingVideo(result.assets[0].uri);
+      setShowUpload(false);
+      setShowCaptionModal(true);
+    }
+  };
+
+  const handlePickFromGallery = async () => {
+    const hasPermission = await requestGalleryPermission();
+    if (!hasPermission) return;
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPendingVideo(result.assets[0].uri);
+      setShowUpload(false);
+      setShowCaptionModal(true);
+    }
+  };
+
+  const confirmPost = () => {
+    const newPost = {
+      id: Date.now().toString(),
+      videoUri: pendingVideo,
+      description: caption || 'New video upload',
+      user: 'You',
+      likes: 0,
+    };
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
+    setPendingVideo(null);
+    setCaption('');
+    setShowCaptionModal(false);
+  };
+
 
   const formatNumber = (num) => {
     if (num >= 1000) {
@@ -341,6 +424,14 @@ const panResponder = useRef(
         </View>
       </View>
 
+      {/* Upload Button */}
+      <TouchableOpacity
+        onPress={() => setShowUpload(true)}
+        style={styles.uploadButton}
+      >
+        <Plus stroke="white" width={24} height={24} />
+      </TouchableOpacity>
+
       {/* Comments Modal */}
       <Modal
         visible={showComments}
@@ -427,7 +518,100 @@ const panResponder = useRef(
         </View>
       </Modal>
 
+<<<<<<< Updated upstream
      
+=======
+      {/* Upload Modal */}
+      <Modal
+        visible={showUpload}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowUpload(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.uploadModal}>
+            <View style={styles.uploadModalContent}>
+              <View style={styles.uploadIcon}>
+                <Plus stroke="white" width={32} height={32} />
+              </View>
+              <Text style={styles.uploadTitle}>Share Your Story</Text>
+              <Text style={styles.uploadSubtitle}>Help empower others with your experience and knowledge</Text>
+              
+              <View style={styles.uploadOptions}>
+                <TouchableOpacity 
+                  style={styles.uploadOptionPrimary}
+                  onPress={handleRecordVideo}
+                >
+                  <Text style={styles.uploadOptionPrimaryText}>Record Video</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.uploadOptionSecondary}
+                  onPress={handlePickFromGallery}
+                >
+                  <Text style={styles.uploadOptionSecondaryText}>Upload from Gallery</Text>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.uploadFooter}>
+                <Flag stroke="#9ca3af" width={16} height={16} />
+                <Text style={styles.uploadFooterText}>Content guidelines apply</Text>
+              </View>
+              
+              <TouchableOpacity
+                onPress={() => setShowUpload(false)}
+                style={styles.cancelButton}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showCaptionModal} animationType="slide" transparent={true}>
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.5)'
+        }}>
+          <View style={{
+            width: '80%',
+            padding: 20,
+            backgroundColor: 'white',
+            borderRadius: 10
+          }}>
+            <Text style={{ fontSize: 18, marginBottom: 10 }}>Add a caption</Text>
+            <TextInput
+              placeholder="Write something..."
+              value={caption}
+              onChangeText={setCaption}
+              style={{
+                borderWidth: 1,
+                borderColor: '#ccc',
+                padding: 10,
+                borderRadius: 5,
+                marginBottom: 15
+              }}
+            />
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <TouchableOpacity
+                style={{ backgroundColor: 'gray', padding: 10, borderRadius: 5 }}
+                onPress={() => setShowCaptionModal(false)}
+              >
+                <Text style={{ color: 'white' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ backgroundColor: 'blue', padding: 10, borderRadius: 5 }}
+                onPress={confirmPost}
+              >
+                <Text style={{ color: 'white' }}>Post</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+>>>>>>> Stashed changes
     </SafeAreaView>
   );
 };
@@ -678,6 +862,118 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  uploadModal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  uploadModalContent: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    width: '100%',
+    maxWidth: 400,
+    padding: 24,
+  },
+  uploadIcon: {
+    backgroundColor: '#9333ea',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  uploadTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  uploadSubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#6b7280',
+    marginBottom: 24,
+  },
+  uploadOptions: {
+    gap: 12,
+  },
+  uploadOptionPrimary: {
+    backgroundColor: '#9333ea',
+    padding: 16,
+    borderRadius: 12,
+  },
+  uploadOptionPrimaryText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  uploadOptionSecondary: {
+    backgroundColor: '#f3f4f6',
+    padding: 16,
+    borderRadius: 12,
+  },
+  uploadOptionSecondaryText: {
+    color: '#4b5563',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  uploadOptionTertiary: {
+    backgroundColor: '#e0f2fe',
+    padding: 16,
+    borderRadius: 12,
+  },
+  uploadOptionTertiaryText: {
+    color: '#0369a1',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  uploadFooter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 24,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  uploadFooterText: {
+    fontSize: 12,
+    color: '#9ca3af',
+  },
+  cancelButton: {
+    marginTop: 16,
+    padding: 8,
+  },
+  cancelButtonText: {
+    color: '#6b7280',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  uploadButton: {
+    position: 'absolute',
+    right: 24,
+    bottom: 24,
+    backgroundColor: '#9333ea',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 
